@@ -1,184 +1,179 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Image Slider</title>
-
-<style>
-  * {
-    box-sizing: border-box;
-    font-family: Arial, sans-serif;
-  }
-
-  body {
-    margin: 0;
-    background: #f4f4f4;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-  }
-
-  .slider {
-    position: relative;
-    width: 90%;
-    max-width: 700px;
-    overflow: hidden;
-    border-radius: 12px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-    background: #000;
-  }
-
-  .slides {
-    display: flex;
-    transition: transform 0.6s ease-in-out;
-  }
-
-  .slide {
-    min-width: 100%;
-  }
-
-  .slide img {
-    width: 100%;
-    height: auto;
-    display: block;
-  }
-
-  /* Buttons */
-  .btn {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    background: rgba(0,0,0,0.6);
-    color: #fff;
-    border: none;
-    font-size: 20px;
-    padding: 10px 15px;
-    cursor: pointer;
-    border-radius: 50%;
-    transition: 0.3s;
-  }
-
-  .btn:hover {
-    background: rgba(0,0,0,0.9);
-  }
-
-  .prev {
-    left: 10px;
-  }
-
-  .next {
-    right: 10px;
-  }
-
-  /* Dots */
-  .dots {
-    position: absolute;
-    bottom: 15px;
-    width: 100%;
-    text-align: center;
-  }
-
-  .dot {
-    display: inline-block;
-    width: 12px;
-    height: 12px;
-    margin: 0 5px;
-    background: #bbb;
-    border-radius: 50%;
-    cursor: pointer;
-    transition: 0.3s;
-  }
-
-  .dot.active {
-    background: #fff;
-  }
-
-  /* Mobile */
-  @media (max-width: 600px) {
-    .btn {
-      font-size: 16px;
-      padding: 8px 12px;
+  <meta charset="UTF-8">
+  <title>Quiz App</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
     }
-  }
-</style>
-</head>
 
+    .quiz-container {
+      background: #fff;
+      width: 400px;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      animation: fadeIn 0.5s ease-in-out;
+    }
+
+    h2 {
+      margin-bottom: 15px;
+    }
+
+    .option {
+      background: #f1f1f1;
+      padding: 10px;
+      border-radius: 6px;
+      margin: 8px 0;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .option:hover {
+      background: #dfe6e9;
+    }
+
+    .option input {
+      margin-right: 10px;
+    }
+
+    button {
+      margin-top: 15px;
+      padding: 10px 15px;
+      border: none;
+      background: #667eea;
+      color: white;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background: #5a67d8;
+    }
+
+    .score {
+      text-align: center;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
 <body>
 
-<div class="slider">
-  <div class="slides" id="slides">
-    <div class="slide">
-      <img src="https://picsum.photos/id/1015/800/400" alt="">
-    </div>
-    <div class="slide">
-      <img src="https://picsum.photos/id/1016/800/400" alt="">
-    </div>
-    <div class="slide">
-      <img src="https://picsum.photos/id/1018/800/400" alt="">
-    </div>
-  </div>
-
-  <button class="btn prev" onclick="prevSlide()">❮</button>
-  <button class="btn next" onclick="nextSlide()">❯</button>
-
-  <div class="dots" id="dots"></div>
+<div class="quiz-container" id="quiz">
+  <h2 id="question">Question text</h2>
+  <div id="options"></div>
+  <button id="nextBtn">Next</button>
 </div>
 
 <script>
-  const slides = document.getElementById("slides");
-  const totalSlides = document.querySelectorAll(".slide").length;
-  const dotsContainer = document.getElementById("dots");
+  const quizData = [
+    {
+      question: "What does HTML stand for?",
+      options: [
+        "Hyper Text Markup Language",
+        "High Text Machine Language",
+        "Hyperlink Text Markup Language",
+        "Home Tool Markup Language"
+      ],
+      correct: 0
+    },
+    {
+      question: "Which language is used for styling web pages?",
+      options: ["HTML", "JQuery", "CSS", "XML"],
+      correct: 2
+    },
+    {
+      question: "Which is not a JavaScript framework?",
+      options: ["React", "Angular", "Vue", "Django"],
+      correct: 3
+    }
+  ];
 
-  let index = 0;
-  let interval;
+  let currentQuestion = 0;
+  let score = 0;
 
-  // Create dots
-  for (let i = 0; i < totalSlides; i++) {
-    const dot = document.createElement("span");
-    dot.classList.add("dot");
-    dot.addEventListener("click", () => goToSlide(i));
-    dotsContainer.appendChild(dot);
+  const questionEl = document.getElementById("question");
+  const optionsEl = document.getElementById("options");
+  const nextBtn = document.getElementById("nextBtn");
+  const quiz = document.getElementById("quiz");
+
+  loadQuestion();
+
+  function loadQuestion() {
+    optionsEl.innerHTML = "";
+    const q = quizData[currentQuestion];
+    questionEl.textContent = q.question;
+
+    q.options.forEach((option, index) => {
+      const div = document.createElement("div");
+      div.classList.add("option");
+      div.innerHTML = `
+        <label>
+          <input type="radio" name="option" value="${index}">
+          ${option}
+        </label>
+      `;
+      optionsEl.appendChild(div);
+    });
+
+    nextBtn.textContent =
+      currentQuestion === quizData.length - 1 ? "Submit" : "Next";
   }
 
-  const dots = document.querySelectorAll(".dot");
+  nextBtn.addEventListener("click", () => {
+    const selected = document.querySelector("input[name='option']:checked");
 
-  function updateSlider() {
-    slides.style.transform = `translateX(-${index * 100}%)`;
-    dots.forEach(dot => dot.classList.remove("active"));
-    dots[index].classList.add("active");
+    if (!selected) {
+      alert("Please select an answer!");
+      return;
+    }
+
+    if (parseInt(selected.value) === quizData[currentQuestion].correct) {
+      score++;
+    }
+
+    currentQuestion++;
+
+    if (currentQuestion < quizData.length) {
+      loadQuestion();
+    } else {
+      showScore();
+    }
+  });
+
+  function showScore() {
+    quiz.innerHTML = `
+      <div class="score">
+        <h2>Your Score</h2>
+        <p>${score} / ${quizData.length}</p>
+        <button onclick="restartQuiz()">Restart Quiz</button>
+      </div>
+    `;
   }
 
-  function nextSlide() {
-    index = (index + 1) % totalSlides;
-    updateSlider();
-    resetAutoPlay();
+  function restartQuiz() {
+    currentQuestion = 0;
+    score = 0;
+    location.reload();
   }
-
-  function prevSlide() {
-    index = (index - 1 + totalSlides) % totalSlides;
-    updateSlider();
-    resetAutoPlay();
-  }
-
-  function goToSlide(i) {
-    index = i;
-    updateSlider();
-    resetAutoPlay();
-  }
-
-  function autoPlay() {
-    interval = setInterval(nextSlide, 3000);
-  }
-
-  function resetAutoPlay() {
-    clearInterval(interval);
-    autoPlay();
-  }
-
-  updateSlider();
-  autoPlay();
 </script>
 
 </body>
